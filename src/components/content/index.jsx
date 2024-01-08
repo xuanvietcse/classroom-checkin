@@ -4,7 +4,10 @@ import Calendar from "./Calendar";
 import LeftContent from "./LeftContent";
 import RightContent from "./RightContent";
 
-const Content = () => {
+const Content = (props) => {
+
+    const { currClassStudents } = props;
+
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-lg p-2">
             <Calendar />
@@ -13,7 +16,9 @@ const Content = () => {
                     <LeftContent />
                 </div>
                 <div className="w-[60%] h-full">
-                    <RightContent />
+                    <RightContent
+                        currClassStudents={currClassStudents}
+                    />
                 </div>
             </div>
         </div>

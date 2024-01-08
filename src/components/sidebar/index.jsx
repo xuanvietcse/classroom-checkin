@@ -6,7 +6,7 @@ import avt from '../../assets/image/avt.png';
 
 const Sidebar = (props) => {
 
-    const { classList } = props;
+    const { classList, handleSelectClass, currClassId } = props;
 
     return (
         <div className="bg-white w-full h-full rounded-lg shadow-lg p-2">
@@ -23,7 +23,7 @@ const Sidebar = (props) => {
                 {classList?.map((item, index) => {
                     return (
                         <div key={`class-${index}`}>
-                            <ClassBlock data={item}/>
+                            <ClassBlock currClassId={currClassId} data={item} handleSelectClass={handleSelectClass}/>
                         </div>
                     )
                 })}

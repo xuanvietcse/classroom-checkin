@@ -5,12 +5,14 @@ import Sidebar from './components/sidebar';
 import Content from './components/content';
 
 import { db } from './core/firebase.js';
-import { ref, query, onValue } from 'firebase/database';
+import { ref, query, onValue, orderByChild, equalTo, get, child } from 'firebase/database';
 
 function App() {
 
     const [state, setState] = useState({
         classList: [],
+        currClassStudents: [],
+        currClassId: '',
     });
 
     const classQuery = query(ref(db, "class"));
@@ -20,10 +22,30 @@ function App() {
             const records = snapshot.val() || {};
             if (records !== null) {
                 const data = Object.values(records);
-                setState(prev => ({...prev, classList: data}));
+                const firstClassId = state.currClassId.length > 0 ? state.currClassId : data[0]?.classId;
+                handleSelectClass(firstClassId);
+                setState(prev => ({...prev, classList: data, currClassId: firstClassId}));
             };
         });
     },[]);
+
+    const handleSelectClass = (classId) => {
+        get(child(ref(db), "students")).then((snapshot) => {
+            const records = snapshot.val() || {};
+            if (records !== null) {
+                const data = Object.values(records);
+                const students = [];
+                data.map((item) => {
+                    if (item?.classJoin?.includes(classId)) {
+                        students.push(item);
+                    }
+                });
+
+                setState(prev => ({...prev, currClassStudents: students, currClassId: classId}));
+            };
+        })
+    
+    };
 
     return (
         <div className='flex flex-col w-screen h-screen'>
@@ -34,10 +56,14 @@ function App() {
                 <div className='h-full w-[30%] ml-4 py-2 mr-4'>
                     <Sidebar 
                         classList={state.classList}
+                        currClassId={state.currClassId}
+                        handleSelectClass={handleSelectClass}
                     />
                 </div>
                 <div className='h-full w-[70%] mr-4 py-2'>
-                    <Content />
+                    <Content
+                        currClassStudents={state.currClassStudents}
+                    />
                 </div>
             </div>
         </div>
