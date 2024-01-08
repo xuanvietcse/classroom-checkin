@@ -4,7 +4,10 @@ import ClassBlock from "./ClassBlock";
 
 import avt from '../../assets/image/avt.png';
 
-const Sidebar = () => {
+const Sidebar = (props) => {
+
+    const { classList } = props;
+
     return (
         <div className="bg-white w-full h-full rounded-lg shadow-lg p-2">
             <div className="flex p-4">
@@ -17,10 +20,13 @@ const Sidebar = () => {
                 </div>
             </div>
             <div className="flex flex-col">
-                <ClassBlock />
-                <ClassBlock />
-                <ClassBlock />
-                <ClassBlock />
+                {classList?.map((item, index) => {
+                    return (
+                        <div key={`class-${index}`}>
+                            <ClassBlock data={item}/>
+                        </div>
+                    )
+                })}
             </div>
         </div>
     );
