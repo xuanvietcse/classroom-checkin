@@ -7,7 +7,7 @@ const ClassBlock = (props) => {
     const { data } = props;
 
     return (
-        <div className="h-[100px] w-full transition-all duration-300 hover:border-[#0096c7] rounded-lg border border-[rgb(189,189,189)] p-2 flex flex-col justify-between cursor-default mb-2">
+        <div className="h-[100px] w-full transition-all duration-300 hover:border-[#0096c7] rounded-lg border border-[rgb(189,189,189)] p-2 flex flex-col justify-between cursor-pointer mb-2">
             <div className="flex items-center">
                 <IconBook className='mr-2'/>
                 <div className="">{data?.className}</div>

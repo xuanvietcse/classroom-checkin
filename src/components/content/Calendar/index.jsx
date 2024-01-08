@@ -125,7 +125,7 @@ const Calendar = () => {
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full mb-5">
             <div className="w-full flex items-center justify-between mb-3">
                 <div className="">
                     <IconLeft className="transform scale-75 cursor-pointer" onClick={goToPreviousWeek}/>

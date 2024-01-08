@@ -19,7 +19,7 @@ const Sidebar = (props) => {
                     <div className="font-normal text-xs opacity-65">thiench@uit.edu.vn</div>
                 </div>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col overflow-y-auto scrollbar-hide" style={{height: 'calc(100vh - (225px))'}}>
                 {classList?.map((item, index) => {
                     return (
                         <div key={`class-${index}`}>
