@@ -5,7 +5,7 @@ import Sidebar from './components/sidebar';
 import Content from './components/content';
 
 import { db } from './core/firebase.js';
-import { ref, query, onValue, orderByChild, equalTo, get, child } from 'firebase/database';
+import { ref, query, onValue, get, child } from 'firebase/database';
 
 function App() {
 
@@ -39,25 +39,10 @@ function App() {
     },[]);
 
     const handleSelectClass = (classId) => {
-        get(child(ref(db), "students")).then((snapshot) => {
-            const records = snapshot.val() || {};
-            if (records !== null) {
-                const data = Object.values(records);
-                const students = [];
-                data.map((item) => {
-                    if (item?.classJoin?.includes(classId)) {
-                        students.push(item);
-                    }
-                });
-
-                setState(prev => ({...prev, currClassStudents: students, currClassId: classId}));
-            };
-        });
-
         get(child(ref(db), `class/${classId}`)).then((snapshot) => {
             const classRecords = snapshot.val() || {};
             if (classRecords !== null) {
-                setState(prev => ({...prev, currClassInfo: classRecords}));
+                setState(prev => ({...prev, currClassInfo: classRecords, currClassId: classId}));
             };
         })
     
@@ -80,6 +65,7 @@ function App() {
                     <Content
                         currClassStudents={state.currClassStudents}
                         currClassInfo={state.currClassInfo}
+                        currClassId={state.currClassId}
                     />
                 </div>
             </div>

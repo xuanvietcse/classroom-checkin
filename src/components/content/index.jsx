@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { db } from '../../core/firebase.js';
+import { ref, query, onValue } from 'firebase/database';
 
 import Calendar from "./Calendar";
 import LeftContent from "./LeftContent";
@@ -6,7 +9,30 @@ import RightContent from "./RightContent";
 
 const Content = (props) => {
 
-    const { currClassStudents, currClassInfo } = props;
+    const {currClassInfo, currClassId } = props;
+
+    const [state, setState] = useState({
+        currClassStudents: [],
+    });
+
+    const classQuery = query(ref(db, "students"));
+
+    useEffect(() => {
+        onValue(classQuery, (snapshot) => {
+            const records = snapshot.val() || {};
+            if (records !== null) {
+                const data = Object.values(records);
+                const students = [];
+                data.map((item) => {
+                    if (item?.classJoin?.includes(currClassId)) {
+                        students.push(item);
+                    }
+                });
+
+                setState(prev => ({...prev, currClassStudents: students}));
+            };
+        });
+    },[currClassId]);
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-lg p-2">
@@ -17,7 +43,8 @@ const Content = (props) => {
                 </div>
                 <div className="w-[60%] h-full">
                     <RightContent
-                        currClassStudents={currClassStudents}
+                        currClassStudents={state.currClassStudents}
+                        currClassId={currClassId}
                     />
                 </div>
             </div>
