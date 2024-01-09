@@ -13,6 +13,7 @@ function App() {
         classList: [],
         currClassStudents: [],
         currClassId: '',
+        currClassInfo: {},
     });
 
     const classQuery = query(ref(db, "class"));
@@ -24,6 +25,14 @@ function App() {
                 const data = Object.values(records);
                 const firstClassId = state.currClassId.length > 0 ? state.currClassId : data[0]?.classId;
                 handleSelectClass(firstClassId);
+
+                get(child(ref(db), `class/${firstClassId}`)).then((snapshot) => {
+                    const classRecords = snapshot.val() || {};
+                    if (classRecords !== null) {
+                        setState(prev => ({...prev, currClassInfo: classRecords}));
+                    };
+                });
+
                 setState(prev => ({...prev, classList: data, currClassId: firstClassId}));
             };
         });
@@ -42,6 +51,13 @@ function App() {
                 });
 
                 setState(prev => ({...prev, currClassStudents: students, currClassId: classId}));
+            };
+        });
+
+        get(child(ref(db), `class/${classId}`)).then((snapshot) => {
+            const classRecords = snapshot.val() || {};
+            if (classRecords !== null) {
+                setState(prev => ({...prev, currClassInfo: classRecords}));
             };
         })
     
@@ -63,6 +79,7 @@ function App() {
                 <div className='h-full w-[70%] mr-4 py-2'>
                     <Content
                         currClassStudents={state.currClassStudents}
+                        currClassInfo={state.currClassInfo}
                     />
                 </div>
             </div>
