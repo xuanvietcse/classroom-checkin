@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 
-import { set, ref, update } from 'firebase/database';
+import { set, ref, update, get, child } from 'firebase/database';
 import { db } from '../../../core/firebase';
 
 import IconClose from '../../../assets/icons/iconClose.svg?react';
@@ -65,30 +65,47 @@ const ModalStudent = (props) => {
 
     const handleUpdateStudent = (type) => {
         if (type === 'add') {
-            if (!state.name) {
+            if (!state.name || !state.email || !state.mssv || !state.phone || !state.class) {
                 alert('Hãy nhập đủ thông tin');
                 return;   
             };
 
-            const newStudent = {
-                name: state.name,
-                gmail: state.email,
-                mssv: state.mssv,
-                phone: state.phone,
-                class: state.class,
-                studentId: state.mssv,
-                classJoin: [currClassId],
-            };
+            
+            get(child(ref(db), "students/")).then((snapshot) => {
+                const record = snapshot.val() ?? [];
+                let classJoin = [];
+                const values = Object.values(record);
+                const isStudentExisting = values.some((item) => item.mssv === state.mssv);
+                
+                if (isStudentExisting) {
+                    values.map((item) => {
+                        if (item.mssv === state.mssv) {
+                            classJoin = item?.classJoin ? [...item?.classJoin, currClassId] : [currClassId];
+                        };
+                    })
+                } else {
+                    classJoin = [currClassId];
+                };
 
-            const isExist = currClassStudents.some(item => item.mssv === newStudent.mssv);
+                const newStudent = {
+                    name: state.name,
+                    gmail: state.email,
+                    mssv: state.mssv,
+                    phone: state.phone,
+                    class: state.class,
+                    studentId: state.mssv,
+                    classJoin: classJoin,
+                };
 
-            if (isExist) {
-                alert('Sinh viên đã có trong lớp học');
-                handleModalStudent();
-                return;
-            };
+                const isExist = currClassStudents.some(item => item.mssv === newStudent.mssv);
+                if (isExist) {
+                    alert('Sinh viên đã có trong lớp học');
+                    handleModalStudent();
+                    return;
+                };
 
-            set(ref(db, `students/${newStudent.mssv}`), newStudent);
+                set(ref(db, `students/${newStudent.mssv}`), newStudent);
+            });
         };
 
         if (type === 'edit' && state.mssv) {
