@@ -57,7 +57,7 @@ const LeftContent = (props) => {
                 <div className="leading-3 p-3 ">{`Sỉ số: ${currClassCheckinInfo?.length}/${currClassInfo?.numberOfStudents}`}</div>
                 <div
                     title='Xuất file excel'
-                    className="p-1 hover:bg-[rgb(219,219,219)] transition-all duration-300 cursor-pointer"
+                    className="p-1 mr-2 hover:bg-[rgb(219,219,219)] transition-all duration-300 cursor-pointer"
                     onClick={handeDownloadExcel}
                 >
                     <IconDownload />
