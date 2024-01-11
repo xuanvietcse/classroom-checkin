@@ -52,7 +52,6 @@ const Content = (props) => {
                 const records = snapshot.val() || {};
                 if (records !== null) {
                     const data = Object.values(records);
-                    console.log(data);
                     setState(prev => ({...prev, currClassCheckinInfo: data}));
                 };
             })
@@ -73,6 +72,7 @@ const Content = (props) => {
                     <RightContent
                         currClassStudents={state.currClassStudents}
                         currClassId={currClassId}
+                        currClassName={currClassInfo?.className}
                     />
                 </div>
             </div>
