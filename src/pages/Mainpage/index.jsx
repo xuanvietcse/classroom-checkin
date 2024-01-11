@@ -61,8 +61,7 @@ function Mainpage() {
             if (classRecords !== null) {
                 setState(prev => ({...prev, currClassInfo: classRecords, currClassId: classId}));
             };
-        })
-    
+        });
     };
 
     const handleLogout = () => {
