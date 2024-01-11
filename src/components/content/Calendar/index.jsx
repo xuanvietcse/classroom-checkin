@@ -77,6 +77,8 @@ const Calendar = (props) => {
 
         const firstAndLast = firstAndLastDateOfWeek(now);
 
+        handleChangeDate(now);
+
         setState(prev => ({...prev, currTime: currTime, currDate: currDate, weeklyDate: firstAndLast, currDateOfWeek: now, currDay: date, isCurrWeek: true}));
     },[]);
 
