@@ -9,10 +9,6 @@ const Sidebar = (props) => {
 
     const { classList, handleSelectClass, currClassId, handleLogout, currUser } = props;
 
-    useEffect(() => {
-        console.log(currUser);
-    },[currUser]);
-
     return (
         <div className="bg-white w-full h-full rounded-lg shadow-lg p-2">
             <div className="flex justify-between p-4">

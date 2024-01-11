@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 
 import { set, ref, update, get, child } from 'firebase/database';
-import { db } from '../../../core/firebase';
+import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
+import { db, storage } from '../../../core/firebase';
 
 import IconClose from '../../../assets/icons/iconClose.svg?react';
 import IconStudent from '../../../assets/icons/iconStudent.svg?react';
@@ -16,6 +17,7 @@ const ModalStudent = (props) => {
         mssv: '',
         phone: '',
         class: '',
+        avt: '',
     });
 
     const modalRef = useRef(null);
@@ -42,6 +44,7 @@ const ModalStudent = (props) => {
             mssv: studentSelected?.mssv || '',
             phone: studentSelected?.phone || '',
             class: studentSelected?.class || '',
+            avt: studentSelected?.avt || '',
         }));
     },[studentSelected]);
 
@@ -116,6 +119,7 @@ const ModalStudent = (props) => {
                 mssv: state.mssv,
                 phone: state.phone,
                 class: state.class,
+                avt: state.avt,
             });
         };
 
@@ -128,6 +132,24 @@ const ModalStudent = (props) => {
 
         handleModalStudent();
     };
+
+    const handleChangeAvatar = (e) => {
+        const file = e.target.files[0]
+        const imageRef = storageRef(storage, `students_avt/${file.name}`)
+        uploadBytes(imageRef, file)
+            .then( (snapshot) => {
+                getDownloadURL(imageRef)
+                    .then(async(url) => {
+                        setState(prev => ({...prev, avt: url}));
+                    })
+                    .catch( (error) => {
+                        console.log("err: ",error.message)
+                    })
+            })
+            .catch( (error) => {
+                console.log(error.message)
+            })
+    }
 
     return (
         <div
@@ -148,8 +170,14 @@ const ModalStudent = (props) => {
                 </div>
                 <div className="w-full p-3 flex border-b border-[rgb(219,219,219)]">
                     <div className="p-2 flex flex-col items-center justify-start cursor-pointer mr-6">
-                        <IconStudent className='mb-2'/>
-                        <div className="cursor-pointer px-6 py-1 border transition-all duration-200 border-[rgb(159,159,159)] rounded-lg hover:bg-blue-200 text-sm font-medium">Đổi ảnh</div>
+                        {state.avt.length === 0 && (
+                            <IconStudent className='mb-2'/>
+                        )}
+                        <img src={state.avt} className={`w-[80px] h-[80px] object-cover rounded-md mb-2 ${state.avt.length === 0 ? 'hidden' : 'block'}`}/>
+                        <label htmlFor="uploadAvatar" className="cursor-pointer">
+                            <div className="cursor-pointer px-6 py-1 border transition-all duration-200 border-[rgb(159,159,159)] rounded-lg hover:bg-blue-200 text-sm font-medium">Đổi ảnh</div>
+                        </label>
+                        <input type="file" className="hidden" id="uploadAvatar" onChange={handleChangeAvatar}/>
                     </div>
                     <div className="flex-grow">
                         {infoTitle.map((item, index) => {
