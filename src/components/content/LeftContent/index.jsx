@@ -50,8 +50,8 @@ const LeftContent = (props) => {
         <div className="border border-[rgb(219,219,219)] h-full rounded-lg mr-3">
             <div className="leading-3 p-3">{`Môn học: ${currClassInfo?.className}`}</div>
             <div className="leading-3 p-3">{`Lịch học: ${classTime}`}</div>
-            <div className="flex items-center justify-between">
-                <div className="leading-3 p-3 border-b border-[rgb(219,219,219)]">{`Sỉ số: ${currClassCheckinInfo?.length}/${currClassInfo?.numberOfStudents}`}</div>
+            <div className="flex items-center justify-between border-b border-[rgb(219,219,219)]">
+                <div className="leading-3 p-3 ">{`Sỉ số: ${currClassCheckinInfo?.length}/${currClassInfo?.numberOfStudents}`}</div>
                 <div
                     title='Xuất file excel'
                     className="p-1 hover:bg-[rgb(219,219,219)] transition-all duration-300 cursor-pointer"
