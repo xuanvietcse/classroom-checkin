@@ -22,7 +22,7 @@ const weeks = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
 
 const Calendar = (props) => {
 
-    const { handleChangeDate } = props;
+    const { handleChangeDate, currClassId } = props;
 
     const [state, setState] = useState({
         currDate: ``,
@@ -76,7 +76,6 @@ const Calendar = (props) => {
         const currDate = `${year} ${month} ${date}`;
 
         const firstAndLast = firstAndLastDateOfWeek(now);
-
         handleChangeDate(now);
 
         setState(prev => ({...prev, currTime: currTime, currDate: currDate, weeklyDate: firstAndLast, currDateOfWeek: now, currDay: date, isCurrWeek: true}));

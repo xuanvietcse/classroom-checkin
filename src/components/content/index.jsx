@@ -47,18 +47,21 @@ const Content = (props) => {
     };
 
     useEffect(() => {
-        onValue(face_recognize, (snapshot) => {
-            const records = snapshot.val() || {};
-            if (records !== null) {
-                const data = Object.values(records);
-                setState(prev => ({...prev, currClassCheckinInfo: data}));
-            };
-        })
+        if (currClassId) {
+            onValue(face_recognize, (snapshot) => {
+                const records = snapshot.val() || {};
+                if (records !== null) {
+                    const data = Object.values(records);
+                    console.log(data);
+                    setState(prev => ({...prev, currClassCheckinInfo: data}));
+                };
+            })
+        }
     },[state.currDate, currClassId]);
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-lg p-2">
-            <Calendar handleChangeDate={handleChangeDate}/>
+            <Calendar handleChangeDate={handleChangeDate} currClassId={currClassId}/>
             <div className="flex items-center flex-grow">
                 <div className="w-[40%] h-full">
                     <LeftContent
