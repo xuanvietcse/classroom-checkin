@@ -64,6 +64,7 @@ const Content = (props) => {
             <div className="flex items-center flex-grow">
                 <div className="w-[40%] h-full">
                     <LeftContent
+                        currClassStudents={state.currClassStudents}
                         currClassInfo={currClassInfo}
                         currClassCheckinInfo={state.currClassCheckinInfo}
                     />
