@@ -37,9 +37,12 @@ const LeftContent = (props) => {
             }
         });
 
-        console.log(excelData);
+        const modifiedData = excelData.map(student => {
+            const { classJoin, avt, ...rest } = student;
+            return rest;
+        });
 
-        const ws = XLSX.utils.json_to_sheet(excelData);
+        const ws = XLSX.utils.json_to_sheet(modifiedData);
         const wb = { Sheets: { data: ws }, SheetNames: ['data'] };
         const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         const data = new Blob([excelBuffer], { type: fileType });
