@@ -19,6 +19,7 @@ const Content = (props) => {
 
     const classQuery = query(ref(db, "students"));
     const face_recognize = query(ref(db, `List_reconize/${state.currDate}/${currClassId}`));
+    const rfid_card = query(ref(db, `RFID_CARD/${state.currDate}/${currClassId}`));
 
     const addLeadingZero = (num) => {
         return num < 10 ? `0${num}` : num;
@@ -48,15 +49,39 @@ const Content = (props) => {
 
     useEffect(() => {
         if (currClassId) {
-            onValue(face_recognize, (snapshot) => {
+            const checkinStudent = [];
+    
+            const handleSnapshot = (snapshot) => {
                 const records = snapshot.val() || {};
                 if (records !== null) {
                     const data = Object.values(records);
-                    setState(prev => ({...prev, currClassCheckinInfo: data}));
-                };
-            })
+                    data.forEach((item) => {
+                        checkinStudent.push(item);
+                    });
+                }
+            };
+    
+            const facePromise = new Promise((resolve) => {
+                onValue(face_recognize, (snapshot) => {
+                    handleSnapshot(snapshot);
+                    resolve();
+                });
+            });
+    
+            const rfidPromise = new Promise((resolve) => {
+                onValue(rfid_card, (snapshot) => {
+                    handleSnapshot(snapshot);
+                    resolve();
+                });
+            });
+    
+            Promise.all([facePromise, rfidPromise]).then(() => {
+                console.log(checkinStudent);
+                setState((prev) => ({ ...prev, currClassCheckinInfo: checkinStudent }));
+            });
         }
-    },[state.currDate, currClassId]);
+    }, [state.currDate, currClassId]);
+    
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-lg p-2">

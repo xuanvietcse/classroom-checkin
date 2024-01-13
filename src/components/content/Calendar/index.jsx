@@ -4,21 +4,21 @@ import IconLeft from '../../../assets/icons/iconLeft.svg?react';
 import IconRight from '../../../assets/icons/iconRight.svg?react';
 
 const lookupMonth = {
-    0: 'Jan',
-    1: 'Feb',
-    2: 'Mar',
-    3: 'Apr',
-    4: 'May',
-    5: 'Jun',
-    6: 'Jul',
-    7: 'Aug',
-    8: 'Sep',
-    9: 'Oct',
-    10: 'Nov',
-    11: 'Dec',
+    0: 'Tháng 1',
+    1: 'Tháng 2',
+    2: 'Tháng 3',
+    3: 'Tháng 4',
+    4: 'Tháng 5',
+    5: 'Tháng 6',
+    6: 'Tháng 7',
+    7: 'Tháng 8',
+    8: 'Tháng 9',
+    9: 'Tháng 10',
+    10: 'Tháng 11',
+    11: 'Tháng 12',
 };
 
-const weeks = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
+const weeks = [ "Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7" ];
 
 const Calendar = (props) => {
 
@@ -73,7 +73,7 @@ const Calendar = (props) => {
         const year = now.getFullYear();
         const month = lookupMonth[now.getMonth()];
         const date = now.getDate() >= 10 ? now.getDate() : `0${now.getDate()}`;
-        const currDate = `${year} ${month} ${date}`;
+        const currDate = `${date} ${month} ${year}`;
 
         const firstAndLast = firstAndLastDateOfWeek(now);
         handleChangeDate(now);
@@ -108,7 +108,7 @@ const Calendar = (props) => {
         const year = now.getFullYear();
         const month = lookupMonth[now.getMonth()];
         const date = now.getDate() >= 10 ? now.getDate() : `0${now.getDate()}`;
-        const currDate = `${year} ${month} ${date}`;
+        const currDate = `${date} ${month} ${year}`;
 
         handleChangeDate(now);
 
