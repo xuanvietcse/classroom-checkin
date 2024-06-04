@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
-import { db } from '../../core/firebase.js';
-import { ref, query, onValue } from 'firebase/database';
+import {db, storage} from '../../core/firebase.js';
+import {ref, query, onValue} from 'firebase/database';
 
 import Calendar from "./Calendar";
 import LeftContent from "./LeftContent";
@@ -9,7 +9,8 @@ import RightContent from "./RightContent";
 
 const Content = (props) => {
 
-    const {currClassInfo, currClassId } = props;
+    const {currClassInfo, currClassId} = props;
+    const [selectedDate, setSelectedDate] = useState("")
 
     const [state, setState] = useState({
         currClassStudents: [],
@@ -38,9 +39,16 @@ const Content = (props) => {
                 });
 
                 setState(prev => ({...prev, currClassStudents: students}));
-            };
+            }
+            ;
         });
-    },[currClassId]);
+    }, [currClassId]);
+
+    const extractFileName = (url) => {
+        const parts = url.split('/');
+        const fileNameWithToken = parts.pop().split('?')[0];
+        return decodeURIComponent(fileNameWithToken);
+    };
 
     const handleChangeDate = (date) => {
         const dateCollection = `${addLeadingZero(date.getDate())}-${addLeadingZero(date.getMonth() + 1)}-${date.getFullYear()}`;
@@ -50,7 +58,7 @@ const Content = (props) => {
     useEffect(() => {
         if (currClassId) {
             const checkinStudent = [];
-    
+
             const handleSnapshot = (snapshot) => {
                 const records = snapshot.val() || {};
                 if (records !== null) {
@@ -60,35 +68,38 @@ const Content = (props) => {
                     });
                 }
             };
-    
+
             const facePromise = new Promise((resolve) => {
                 onValue(face_recognize, (snapshot) => {
                     handleSnapshot(snapshot);
                     resolve();
                 });
             });
-    
+
             const rfidPromise = new Promise((resolve) => {
                 onValue(rfid_card, (snapshot) => {
                     handleSnapshot(snapshot);
                     resolve();
                 });
             });
-    
+
             Promise.all([facePromise, rfidPromise]).then(() => {
-                console.log(checkinStudent);
-                setState((prev) => ({ ...prev, currClassCheckinInfo: checkinStudent }));
+                setState((prev) => ({...prev, currClassCheckinInfo: checkinStudent}));
             });
         }
     }, [state.currDate, currClassId]);
-    
 
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-lg p-2">
-            <Calendar handleChangeDate={handleChangeDate} currClassId={currClassId}/>
+            <Calendar
+                handleChangeDate={handleChangeDate}
+                currClassId={currClassId}
+                setSelectedDate={setSelectedDate}
+            />
             <div className="flex items-center flex-grow">
                 <div className="w-[40%] h-full">
                     <LeftContent
+                        selectedDate={selectedDate}
                         currClassStudents={state.currClassStudents}
                         currClassInfo={currClassInfo}
                         currClassCheckinInfo={state.currClassCheckinInfo}
@@ -96,6 +107,7 @@ const Content = (props) => {
                 </div>
                 <div className="w-[60%] h-full">
                     <RightContent
+
                         currClassStudents={state.currClassStudents}
                         currClassId={currClassId}
                         currClassName={currClassInfo?.className}

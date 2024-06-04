@@ -22,7 +22,7 @@ const weeks = [ "Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Th�
 
 const Calendar = (props) => {
 
-    const { handleChangeDate, currClassId } = props;
+    const { handleChangeDate, currClassId ,setSelectedDate} = props;
 
     const [state, setState] = useState({
         currDate: ``,
@@ -116,6 +116,7 @@ const Calendar = (props) => {
     };
 
     const handleChangeSelectedDate = (date) => {
+        setSelectedDate(date)
         setState(prev => ({...prev, currDay: addLeadingZero(date?.getDate())}));
         handleChangeDate(date);
     };

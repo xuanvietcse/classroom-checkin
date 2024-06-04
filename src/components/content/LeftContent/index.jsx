@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 
@@ -6,13 +6,16 @@ import CheckinBlock from "./CheckinBlock";
 
 import IconNodata from '../../../assets/icons/iconNodata.svg?react';
 import IconDownload from '../../../assets/icons/iconDownload.svg?react';
+import {getDownloadURL} from "firebase/storage";
+import {storage} from "../../../core/firebase.js";
+import { ref, listAll } from 'firebase/storage';
 
 const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 
 const LeftContent = (props) => {
 
-    const { currClassInfo, currClassCheckinInfo, currClassStudents } = props;
-
+    const { currClassInfo, currClassCheckinInfo, currClassStudents, selectedDate  } = props;
+    const [imageUrls, setImageUrls] = useState([]);
     const classTime = {
         0: 'Thứ 2',
         1: 'Thứ 3',
@@ -23,6 +26,62 @@ const LeftContent = (props) => {
         6: 'Chủ nhật',
     }[currClassInfo?.classDate];
 
+        useEffect(() => {
+            if(!selectedDate) return
+            const date = selectedDate
+
+// Trích xuất ngày, tháng và năm từ đối tượng Date
+            const day = String(date.getDate()).padStart(2, "0"); // Chèn số 0 vào trước nếu cần
+            const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0 nên cần cộng thêm 1
+            const year = date.getFullYear();
+
+// Kết hợp các thành phần thành chuỗi theo định dạng "ddMMyyyy"
+            const dateString = day + month + year;
+
+            const imagesRef = ref(storage, `AttendanceInformation/${dateString}/`);
+
+            // Lấy danh sách các hình ảnh
+            listAll(imagesRef)
+                .then((result) => {
+                    // Tạo các promise để lấy URL tải xuống cho mỗi tệp
+                    const promises = result.items.map((imageRef) => getDownloadURL(imageRef));
+
+                    // Chờ tất cả các promise hoàn thành và cập nhật state
+                    Promise.all(promises)
+                        .then((urls) => {
+                            setImageUrls(urls);
+                        })
+                        .catch((error) => {
+                            console.error('Error getting download URLs:', error.message);
+                        });
+                })
+                .catch((error) => {
+                    console.error('Error listing files:', error.message);
+                });
+        }, [selectedDate]);
+
+   /*async function  getImageByDate(date){
+       const imagesRef = ref(storage, `AttendanceInformation/${date}/`);
+
+       // Lấy danh sách các hình ảnh
+       await listAll(imagesRef)
+           .then((result) => {
+               // Tạo các promise để lấy URL tải xuống cho mỗi tệp
+               const promises = result.items.map((imageRef) => getDownloadURL(imageRef));
+
+               // Chờ tất cả các promise hoàn thành và cập nhật state
+               Promise.all(promises)
+                   .then((urls) => {
+                       setImageUrls(urls);
+                   })
+                   .catch((error) => {
+                       console.error('Error getting download URLs:', error.message);
+                   });
+           })
+           .catch((error) => {
+               console.error('Error listing files:', error.message);
+           });
+   }*/
     const handeDownloadExcel = () => {
         const currStudentCheckinId = currClassCheckinInfo.map(item => item?.mssv);
 
@@ -49,12 +108,51 @@ const LeftContent = (props) => {
         FileSaver.saveAs(data, `List_checkin_${currClassInfo?.className}.xlsx`);
     }
 
+    const extractFileName = (url) => {
+        const parts = url.split('/');
+        const fileNameWithToken = parts.pop().split('?')[0];
+        return decodeURIComponent(fileNameWithToken);
+    };
+
+    const fileInfoObjects = imageUrls.map(extractFileName).map((fileInfo) => {
+        // Tách chuỗi thành mảng các phần bằng cách tách dấu gạch chéo
+        const parts = fileInfo.split('/');
+
+        // Phần đầu tiên chứa thông tin về ngày
+        const datePart = parts[1]; // Lấy phần trước dấu chấm
+        const checkout = parts[2];
+        const name = checkout.split("_")[0]
+        const other = checkout.split("_")[1].split("-")
+        const masv = other[0];
+        const hour = other[1].substring(0,2);
+        const minute = other[1].substring(2,4);
+        const second = other[1].substring(4,6);
+
+        // Tạo và trả về một object chứa thông tin đã tách
+        return {
+            date: datePart,
+            name: name,
+            maSV: masv,
+            hour: hour,
+            minute: minute,
+            second: second,
+        };
+    });
+    const getPresent = ()=>{
+        const students = fileInfoObjects.map(e=>e.maSV)
+        const uniqueMaSVSet = new Set(students);
+        const uniqueMaSVArray = Array.from(uniqueMaSVSet);
+        const maSVInClass = currClassStudents.map(e=>e.mssv);
+
+        return uniqueMaSVArray.filter(item => maSVInClass.indexOf(item) !== -1).length;
+    }
+    getPresent()
     return (
         <div className="border border-[rgb(219,219,219)] h-full rounded-lg mr-3">
             <div className="leading-3 p-3">{`Môn học: ${currClassInfo?.className}`}</div>
             <div className="leading-3 p-3">{`Lịch học: ${classTime}`}</div>
             <div className="flex items-center justify-between border-b border-[rgb(219,219,219)]">
-                <div className="leading-3 p-3 ">{`Sỉ số: ${currClassCheckinInfo?.length}/${currClassInfo?.numberOfStudents}`}</div>
+                <div className="leading-3 p-3 ">{`Sĩ số: ${getPresent()}/${currClassStudents?.length}`}</div>
                 <div
                     title='Xuất file excel'
                     className="p-1 mr-2 hover:bg-[rgb(219,219,219)] transition-all duration-300 cursor-pointer"
@@ -64,7 +162,41 @@ const LeftContent = (props) => {
                 </div>
             </div>
             <div className="p-3 overflow-y-auto scrollbar-hide" style={{height: 'calc(100vh - 329px)'}}>
-                {currClassCheckinInfo?.map((item, index) => {
+                <div>
+                    <div>
+                        {/* Kiểm tra nếu imageUrls tồn tại thì hiển thị */}
+                        {imageUrls.length > 0 ? (
+                            <div>
+                                {imageUrls.filter((e, index)=>{
+                                    const date1 = fileInfoObjects[index].date; // Định dạng ngày tháng năm (ddMMyyyy)
+                                    const date2 = new Date(selectedDate);
+                                    const parts = date1.match(/(\d{2})(\d{2})(\d{4})/); // Tách chuỗi thành ngày, tháng, năm
+                                    const day = parseInt(parts[1]);
+                                    const month = parseInt(parts[2]) - 1; // Giảm đi 1 vì tháng trong JavaScript bắt đầu từ 0 (0-11)
+                                    const year = parseInt(parts[3]);
+                                    const date1Obj = new Date(year, month, day);
+
+                                     return   date1Obj.getFullYear() === date2.getFullYear() &&
+                                        date1Obj.getMonth() === date2.getMonth() &&
+                                        date1Obj.getDate() === date2.getDate()
+
+                                }).map((url, index) => (
+                                    <div style={{display:"flex", alignItems:"center","padding-bottom":"10px"}}>
+                                        <img width={100} key={index} src={url} alt={`Downloaded from Firebase ${index}`} />
+                                        <span style={{"padding-left": "5px"}}>
+                                            <span>{fileInfoObjects[index].name}  - </span>
+                                            <span>{fileInfoObjects[index].maSV}</span> -
+                                            <span> {fileInfoObjects[index].hour} : {fileInfoObjects[index].minute} : {fileInfoObjects[index].second}</span>
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p>Loading...</p>
+                        )}
+                    </div>
+                </div>
+             {/*   {currClassCheckinInfo?.map((item, index) => {
                     return (
                         <div className="my-2" key={`checkin-${index}`}>
                             <CheckinBlock data={item}/>
@@ -76,8 +208,9 @@ const LeftContent = (props) => {
                         <IconNodata/>
                         <div className="">Không có dữ liệu</div>
                     </div>
-                )}
+                )}*/}
             </div>
+
         </div>
     );
 };

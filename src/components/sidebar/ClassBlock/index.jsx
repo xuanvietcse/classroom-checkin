@@ -21,7 +21,7 @@ const ClassBlock = (props) => {
                     <div className="text-[rgb(25,103,210)] font-semibold">{data?.classRoom}</div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <div className="">Sỉ số</div>
+                    <div className="">Sĩ số</div>
                     <div className="text-[rgb(25,103,210)] font-semibold">{data?.numberOfStudents}</div>
                 </div>
                 <div className="flex flex-col items-center">
