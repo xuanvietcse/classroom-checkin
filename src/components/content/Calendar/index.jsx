@@ -22,7 +22,7 @@ const weeks = [ "Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Th�
 
 const Calendar = (props) => {
 
-    const { handleChangeDate, currClassId ,setSelectedDate} = props;
+    const { handleChangeDate, currClassId ,setSelectedDate,setX} = props;
 
     const [state, setState] = useState({
         currDate: ``,
@@ -31,7 +31,6 @@ const Calendar = (props) => {
         isCurrWeek: false,
         currDay: null,
     });
-
     const addLeadingZero = (num) => {
         return num < 10 ? `0${num}` : num;
     };
@@ -117,7 +116,8 @@ const Calendar = (props) => {
 
     const handleChangeSelectedDate = (date) => {
         setSelectedDate(date)
-        setState(prev => ({...prev, currDay: addLeadingZero(date?.getDate())}));
+        setX((x)=>x+1)
+        setState(prev => ({...prev,currDay: addLeadingZero(date?.getDate())}));
         handleChangeDate(date);
     };
 

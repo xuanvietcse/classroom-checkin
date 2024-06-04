@@ -143,11 +143,11 @@ const ModalStudent = (props) => {
                         setState(prev => ({...prev, avt: url}));
                     })
                     .catch( (error) => {
-                        console.log("err: ",error.message)
+                        // console.log("err: ",error.message)
                     })
             })
             .catch( (error) => {
-                console.log(error.message)
+                // console.log(error.message)
             })
     }
 

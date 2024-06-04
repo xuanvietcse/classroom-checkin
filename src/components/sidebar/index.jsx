@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 
 import ClassBlock from "./ClassBlock";
 
@@ -7,7 +7,17 @@ import IconLogout from '../../assets/icons/iconLogout.svg?react';
 
 const Sidebar = (props) => {
 
-    const { classList, handleSelectClass, currClassId, handleLogout, currUser } = props;
+    const { classList, handleSelectClass, currClassId, handleLogout, currUser, classInfo } = props;
+    classList.forEach((classItem) => {
+    // Tìm số sinh viên có classJoin là classId
+    const numberOfStudents = classInfo().data.filter(
+        (student) => student.classJoin.includes(classItem.classId)).length;
+    // Cập nhật lại biến numberOfStudents trong class
+    if(numberOfStudents !== 0){
+        classItem.numberOfStudents = numberOfStudents.toString();
+    }
+});
+
 
     return (
         <div className="bg-white w-full h-full rounded-lg shadow-lg p-2">

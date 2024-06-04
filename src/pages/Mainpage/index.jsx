@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef  } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +18,8 @@ function Mainpage() {
         currClassInfo: {},
         currUser: {},
     });
-
+    const contentRef = useRef();
+    const [x,setX] = useState(1)
     const navigate = useNavigate();
 
     const classQuery = query(ref(db, "class"));
@@ -30,10 +31,10 @@ function Mainpage() {
                     pathname: '/login'
                 });
             } else {
-                setState(prev => ({...prev, currUser: user}));
+                setState(prev => ({ ...prev, currUser: user }));
             }
         });
-    },[]);
+    }, []);
 
     useEffect(() => {
         onValue(classQuery, (snapshot) => {
@@ -46,20 +47,23 @@ function Mainpage() {
                 get(child(ref(db), `class/${firstClassId}`)).then((snapshot) => {
                     const classRecords = snapshot.val() || {};
                     if (classRecords !== null) {
-                        setState(prev => ({...prev, currClassInfo: classRecords}));
+                        setState(prev => ({ ...prev, currClassInfo: classRecords }));
                     };
                 });
 
-                setState(prev => ({...prev, classList: data, currClassId: firstClassId}));
+                setState(prev => ({ ...prev, classList: data, currClassId: firstClassId }));
             };
         });
-    },[]);
-
+    }, []);
+const [selectedShift, setSelectedShift] =useState([0])
     const handleSelectClass = (classId) => {
+        
         get(child(ref(db), `class/${classId}`)).then((snapshot) => {
             const classRecords = snapshot.val() || {};
+            var numbersArray = classRecords.classTime.split(" ").map(Number);
+            setSelectedShift(numbersArray)
             if (classRecords !== null) {
-                setState(prev => ({...prev, currClassInfo: classRecords, currClassId: classId}));
+                setState(prev => ({ ...prev, currClassInfo: classRecords, currClassId: classId }));
             };
         });
     };
@@ -68,7 +72,7 @@ function Mainpage() {
         localStorage.removeItem('currUser');
         auth.signOut();
     };
-
+   
     return (
         <div className='flex flex-col w-screen h-screen'>
             <div className='w-full h-[93px] border-b border-[rgb(219,219,219)]'>
@@ -76,8 +80,11 @@ function Mainpage() {
             </div>
             <div className='w-full flex items-center flex-grow bg-[#ECECEC]'>
                 <div className='h-full w-[30%] ml-4 py-2 mr-4'>
-                    <Sidebar 
-                        classList={state.classList}
+                    <Sidebar
+                        classInfo ={contentRef.current?.classInfo}
+                        classList={state.classList.filter(x=>{
+                          return  x.classDate == contentRef.current?.classInfo().day.getDay()
+                        })}
                         currClassId={state.currClassId}
                         handleSelectClass={handleSelectClass}
                         handleLogout={handleLogout}
@@ -86,6 +93,9 @@ function Mainpage() {
                 </div>
                 <div className='h-full w-[70%] mr-4 py-2'>
                     <Content
+                        ref={contentRef}
+                        selectedShift={selectedShift}
+                        setX={setX}
                         currClassStudents={state.currClassStudents}
                         currClassInfo={state.currClassInfo}
                         currClassId={state.currClassId}

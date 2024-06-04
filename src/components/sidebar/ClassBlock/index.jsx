@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import IconBook from '../../../assets/icons/iconBook.svg?react';
 
@@ -25,7 +25,7 @@ const ClassBlock = (props) => {
                     <div className="text-[rgb(25,103,210)] font-semibold">{data?.numberOfStudents}</div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <div className="">Số tiết</div>
+                    <div className="">Tiết học</div>
                     <div className="text-[rgb(25,103,210)] font-semibold">{data?.classTime}</div>
                 </div>
             </div>

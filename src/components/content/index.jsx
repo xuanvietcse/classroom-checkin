@@ -1,22 +1,29 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 
-import {db, storage} from '../../core/firebase.js';
-import {ref, query, onValue} from 'firebase/database';
+import { db, storage } from '../../core/firebase.js';
+import { ref, query, onValue } from 'firebase/database';
 
 import Calendar from "./Calendar";
 import LeftContent from "./LeftContent";
 import RightContent from "./RightContent";
 
-const Content = (props) => {
+const Content = forwardRef((props, reff) => {
 
-    const {currClassInfo, currClassId} = props;
-    const [selectedDate, setSelectedDate] = useState("")
+    const { currClassInfo, currClassId, setX,selectedShift } = props;
+    const [selectedDate, setSelectedDate] = useState(new Date())
 
     const [state, setState] = useState({
         currClassStudents: [],
         currDate: new Date(),
         currClassCheckinInfo: [],
+        data: []
     });
+
+    useImperativeHandle(reff, () => ({
+        classInfo: () => {
+            return {...state,day:selectedDate};
+        }
+    }));
 
     const classQuery = query(ref(db, "students"));
     const face_recognize = query(ref(db, `List_reconize/${state.currDate}/${currClassId}`));
@@ -38,7 +45,7 @@ const Content = (props) => {
                     }
                 });
 
-                setState(prev => ({...prev, currClassStudents: students}));
+                setState(prev => ({ ...prev, currClassStudents: students, data: data }));
             }
             ;
         });
@@ -52,7 +59,7 @@ const Content = (props) => {
 
     const handleChangeDate = (date) => {
         const dateCollection = `${addLeadingZero(date.getDate())}-${addLeadingZero(date.getMonth() + 1)}-${date.getFullYear()}`;
-        setState(prev => ({...prev, currDate: dateCollection}));
+        setState(prev => ({ ...prev, currDate: dateCollection }));
     };
 
     useEffect(() => {
@@ -84,21 +91,22 @@ const Content = (props) => {
             });
 
             Promise.all([facePromise, rfidPromise]).then(() => {
-                setState((prev) => ({...prev, currClassCheckinInfo: checkinStudent}));
+                setState((prev) => ({ ...prev, currClassCheckinInfo: checkinStudent }));
             });
         }
     }, [state.currDate, currClassId]);
-
     return (
         <div className="w-full h-full flex flex-col bg-white rounded-lg shadow-lg p-2">
             <Calendar
                 handleChangeDate={handleChangeDate}
                 currClassId={currClassId}
                 setSelectedDate={setSelectedDate}
+                setX={setX}
             />
             <div className="flex items-center flex-grow">
                 <div className="w-[40%] h-full">
                     <LeftContent
+                    selectedShift={selectedShift}
                         selectedDate={selectedDate}
                         currClassStudents={state.currClassStudents}
                         currClassInfo={currClassInfo}
@@ -107,7 +115,6 @@ const Content = (props) => {
                 </div>
                 <div className="w-[60%] h-full">
                     <RightContent
-
                         currClassStudents={state.currClassStudents}
                         currClassId={currClassId}
                         currClassName={currClassInfo?.className}
@@ -116,6 +123,6 @@ const Content = (props) => {
             </div>
         </div>
     );
-};
+});
 
 export default Content
