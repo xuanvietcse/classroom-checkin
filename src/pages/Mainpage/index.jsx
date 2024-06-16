@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef  } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -19,7 +19,7 @@ function Mainpage() {
         currUser: {},
     });
     const contentRef = useRef();
-    const [x,setX] = useState(1)
+    const [x, setX] = useState(1)
     const navigate = useNavigate();
 
     const classQuery = query(ref(db, "class"));
@@ -55,9 +55,9 @@ function Mainpage() {
             };
         });
     }, []);
-const [selectedShift, setSelectedShift] =useState([0])
+    const [selectedShift, setSelectedShift] = useState([0])
     const handleSelectClass = (classId) => {
-        
+
         get(child(ref(db), `class/${classId}`)).then((snapshot) => {
             const classRecords = snapshot.val() || {};
             var numbersArray = classRecords.classTime.split(" ").map(Number);
@@ -72,7 +72,7 @@ const [selectedShift, setSelectedShift] =useState([0])
         localStorage.removeItem('currUser');
         auth.signOut();
     };
-   
+
     return (
         <div className='flex flex-col w-screen h-screen'>
             <div className='w-full h-[93px] border-b border-[rgb(219,219,219)]'>
@@ -81,9 +81,9 @@ const [selectedShift, setSelectedShift] =useState([0])
             <div className='w-full flex items-center flex-grow bg-[#ECECEC]'>
                 <div className='h-full w-[30%] ml-4 py-2 mr-4'>
                     <Sidebar
-                        classInfo ={contentRef.current?.classInfo}
-                        classList={state.classList.filter(x=>{
-                          return  x.classDate == contentRef.current?.classInfo().day.getDay()
+                        classInfo={contentRef.current?.classInfo}
+                        classList={state.classList.filter(x => {
+                            return x.classDate == contentRef.current?.classInfo().day.getDay()
                         })}
                         currClassId={state.currClassId}
                         handleSelectClass={handleSelectClass}

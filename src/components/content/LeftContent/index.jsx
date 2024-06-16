@@ -160,16 +160,8 @@ const LeftContent = (props) => {
     const filesss = fileInfoObjects.filter((x) => {
         return selectedShift.includes(getStudyShift(x.hour, x.minute, x.second))
     });
-    const getPresent = () => {
-        const students = fileInfoObjects.map(e => e.maSV)
-        const uniqueMaSVSet = new Set(students);
-        const uniqueMaSVArray = Array.from(uniqueMaSVSet);
-        const maSVInClass = currClassStudents.map(e => e.mssv);
-
-        return uniqueMaSVArray.filter(item => maSVInClass.indexOf(item) !== -1).length;
-    }
-    getPresent()
-
+   
+  
     // Define a function to get the study shift based on the given time
     function getStudyShift(hours, minutes, seconds) {
         // Convert the time into minutes for easier comparison
@@ -205,6 +197,32 @@ const LeftContent = (props) => {
         return (hours < 10 ? "0" : "") + hours + ":" + (mins < 10 ? "0" : "") + mins;
     }
 
+const wtf = imageUrls.filter((e, index) => {
+    const date1 = fileInfoObjects[index].date; // Định dạng ngày tháng năm (ddMMyyyy)
+    const date2 = new Date(selectedDate);
+    const parts = date1.match(/(\d{2})(\d{2})(\d{4})/); // Tách chuỗi thành ngày, tháng, năm
+    const day = parseInt(parts[1]);
+    const month = parseInt(parts[2]) - 1; // Giảm đi 1 vì tháng trong JavaScript bắt đầu từ 0 (0-11)
+    const year = parseInt(parts[3]);
+    const date1Obj = new Date(year, month, day);
+    return date1Obj.getFullYear() === date2.getFullYear() &&
+        date1Obj.getMonth() === date2.getMonth() &&
+        date1Obj.getDate() === date2.getDate() &&
+        selectedShift.includes(getStudyShift(fileInfoObjects[index].hour, fileInfoObjects[index].minute, fileInfoObjects[index].second))
+
+})
+
+const getPresent = () => {
+    // const students = fileInfoObjects.map(e => e.maSV)
+    // const uniqueMaSVSet = new Set(students);
+    // const uniqueMaSVArray = Array.from(uniqueMaSVSet);
+    // const maSVInClass = currClassStudents.map(e => e.mssv);
+    // return uniqueMaSVArray.filter(item => maSVInClass.indexOf(item) !== -1).length;
+    
+    let arr= [...new Set(wtf.map((url, index)=>filesss[index].maSV))].length
+    return arr
+}
+
     return (
         <div className="border border-[rgb(219,219,219)] h-full rounded-lg mr-3">
             <div className="leading-3 p-3">{`Môn học: ${currClassInfo?.className}`}</div>
@@ -223,22 +241,9 @@ const LeftContent = (props) => {
                 <div>
                     <div>
                         {/* Kiểm tra nếu imageUrls tồn tại thì hiển thị */}
-                        {imageUrls.length > 0 ? (
+                        {wtf.length > 0 ? (
                             <div>
-                                {imageUrls.filter((e, index) => {
-                                    const date1 = fileInfoObjects[index].date; // Định dạng ngày tháng năm (ddMMyyyy)
-                                    const date2 = new Date(selectedDate);
-                                    const parts = date1.match(/(\d{2})(\d{2})(\d{4})/); // Tách chuỗi thành ngày, tháng, năm
-                                    const day = parseInt(parts[1]);
-                                    const month = parseInt(parts[2]) - 1; // Giảm đi 1 vì tháng trong JavaScript bắt đầu từ 0 (0-11)
-                                    const year = parseInt(parts[3]);
-                                    const date1Obj = new Date(year, month, day);
-                                    return date1Obj.getFullYear() === date2.getFullYear() &&
-                                        date1Obj.getMonth() === date2.getMonth() &&
-                                        date1Obj.getDate() === date2.getDate() &&
-                                        selectedShift.includes(getStudyShift(fileInfoObjects[index].hour, fileInfoObjects[index].minute, fileInfoObjects[index].second))
-
-                                }).map((url, index) => {
+                                {wtf.map((url, index) => {
                                         return  (<div style={{ display: "flex", alignItems: "center", "padding-bottom": "10px" }}>
                                               <img width={100} key={index} src={url} alt={`Downloaded from Firebase ${index}`} />
                                               <span style={{ "padding-left": "5px" }}>
